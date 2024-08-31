@@ -1,6 +1,6 @@
-
 import math
 import random
+
 
 class Var:
     def __init__(self, val, parents=None):
@@ -45,14 +45,14 @@ class Var:
 
 def demo_var_taylor(n_samples, n_coefs, n_epochs, lr, print_every):
     x_samples = [Var.random(3.14) for _ in range(n_samples)]
-    y_samples = [Var(math.cos(x.val)) for x in x_samples]
+    y_samples = [Var(math.sin(x.val)) for x in x_samples]
 
     c_params = [Var.random(1.0) for _ in range(n_coefs)]
 
-    def taylor(x):
+    def sine_taylor(x):
         out = Var(0.0)
         for i, c in enumerate(c_params):
-            out += c * x ** i
+            out += c * x ** (2 * i + 1)
         return out
 
     y_predict = [Var(0.0) for _ in range(n_samples)]
@@ -60,12 +60,12 @@ def demo_var_taylor(n_samples, n_coefs, n_epochs, lr, print_every):
     for epoch in range(n_epochs):
         loss = Var(0.0)
         for i, (x, y) in enumerate(zip(x_samples, y_samples)):
-            y_hat = taylor(x)
+            y_hat = sine_taylor(x)
             y_predict[i] = y_hat
             loss += (y - y_hat) ** 2
         loss /= Var(n_samples)
 
-        if loss.val > 100000:
+        if loss.val > 10000000:
             print("loss exploded! maybe lower learning rate")
             break
 
@@ -84,7 +84,7 @@ def demo_var_taylor(n_samples, n_coefs, n_epochs, lr, print_every):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     random.seed(0)
-    x, y, y_hat = demo_var_taylor(100, 5, 4000, 0.001, 200)
+    x, y, y_hat = demo_var_taylor(100, 2, 4000, 0.001, 200)
 
     def tolist(lst):
         return [v.val for v in lst]
@@ -93,3 +93,4 @@ if __name__ == '__main__':
     plt.scatter(tolist(x), tolist(y), marker='1')
     plt.scatter(tolist(x), tolist(y_hat), marker='2')
     plt.savefig("output/demo_var_taylor.png")
+    plt.show()
